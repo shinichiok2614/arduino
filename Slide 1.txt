@@ -1,0 +1,999 @@
+﻿const int DATA = 3;// pin 12 của Arduino nối với pin DATA của 74HC595
+const int CLOCK = 4;//pin 10 của Arduino nối với pin CLOCK của 74HC595
+const int LATCH = 2;//pin 11 của Arduino nối với pin LATCH của 74HC595
+int row[] = {1, 2, 4, 8, 16, 32, 64, 128};
+int column[] = {128, 64, 32, 16, 8, 4, 2, 1};
+int xuly = 0;
+int ts = 5;
+unsigned int Clean = 0x00;
+unsigned int messMinus[] = {
+  0x00, 0x00, 0x00, 0x3C, 0x3C, 0x00, 0x00, 0x00
+};
+unsigned int messAJ[] = {
+  0x00, 0x00, 0x00, 0x06, 0x06, 0x00, 0x00, 0x00
+};
+unsigned int messAS[] = {
+  0x10, 0x30, 0x60, 0x40, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messOO[] = {
+  0x00, 0x00, 0x40, 0x60, 0x20, 0x40, 0x00, 0x00
+};
+unsigned int messOOF[] = {
+  0x00, 0x40, 0x20, 0x60, 0x40, 0x20, 0x30, 0x10
+};
+unsigned int messAW[] = {
+  0x00, 0x00, 0x20, 0x40, 0x40, 0x20, 0x00, 0x00
+};
+unsigned int messAR[] = {
+  0x00, 0x00, 0x60, 0xA0, 0x20, 0x00, 0x00, 0x00
+};
+unsigned int messClean[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messUW[] = {
+  0x01, 0x67, 0x67, 0x66, 0x66, 0x66, 0x66, 0x7C //UW
+};
+unsigned int messA[] = {
+  0x18, 0x3C, 0x66, 0x66, 0x7E, 0x66, 0x66, 0x66 //A
+};
+unsigned int messB[] = {
+  0x78, 0x64, 0x68, 0x78, 0x64, 0x66, 0x66, 0x7C //B
+};
+unsigned int messC[] = {
+  0x3C, 0x62, 0x60, 0x60, 0x60, 0x62, 0x62, 0x3C //C
+};
+unsigned int messD[] = {
+  0x78, 0x64, 0x66, 0x66, 0x66, 0x66, 0x64, 0x78 //D
+};
+unsigned int messDD[] = {
+  0x78, 0x64, 0x66, 0xF6, 0xF6, 0x66, 0x64, 0x78 //D
+};
+unsigned int messE[] = {
+  0x7E, 0x60, 0x60, 0x7C, 0x60, 0x60, 0x60, 0x7E //E
+};
+unsigned int messF[] = {
+  0x7E, 0x60, 0x60, 0x7C, 0x60, 0x60, 0x60, 0x60 //F
+};
+unsigned int messG[] = {
+  0x3C, 0x62, 0x60, 0x60, 0x66, 0x62, 0x62, 0x3C //G
+};
+unsigned int messH[] = {
+  0x66, 0x66, 0x66, 0x7E, 0x7E, 0x66, 0x66, 0x66 //H
+};
+unsigned int messI[] = {
+  0x7E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x7E //I
+};
+unsigned int messJ[] = {
+  0x7E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x1A, 0x0C //J
+};
+unsigned int messK[] = {
+  0x62, 0x64, 0x68, 0x70, 0x70, 0x68, 0x64, 0x62 //K
+};
+unsigned int messL[] = {
+  0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x7E //L
+};
+unsigned int messM[] = {
+  0xC3, 0xE7, 0xDB, 0xDB, 0xC3, 0xC3, 0xC3, 0xC3 //M
+};
+unsigned int messN[] = {
+  0x63, 0x73, 0x7B, 0x6F, 0x67, 0x63, 0x63, 0x63 //N
+};
+unsigned int messO[] = {
+  0x3C, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C //O
+};
+unsigned int messP[] = {
+  0x7C, 0x62, 0x62, 0x7C, 0x60, 0x60, 0x60, 0x60 //P
+};
+unsigned int messQ[] = {
+  0x38, 0x64, 0x64, 0x64, 0x64, 0x6C, 0x64, 0x3A //Q
+};
+unsigned int messR[] = {
+  0x7C, 0x66, 0x66, 0x7C, 0x78, 0x6C, 0x66, 0x66 //R
+};
+unsigned int messS[] = {
+  0x1C, 0x22, 0x30, 0x18, 0x0C, 0x46, 0x46, 0x3C //S
+};
+unsigned int messT[] = {
+  0x7E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18 //T
+};
+unsigned int messU[] = {
+  0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C //U
+};
+unsigned int messV[] = {
+  0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C, 0x18 //V
+};
+unsigned int messW[] = {
+  0x81, 0x81, 0x81, 0x81, 0x81, 0x99, 0x99, 0x66 //W
+};
+unsigned int messX[] = {
+  0x42, 0x42, 0x24, 0x18, 0x18, 0x24, 0x42, 0x42 //X
+};
+unsigned int messY[] = {
+  0xC3, 0x66, 0x3C, 0x18, 0x18, 0x18, 0x18, 0x18 //Y
+};
+unsigned int messZ[] = {
+  0x7E, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x7E //Z
+};
+unsigned int messN0[] = {
+  0x3C, 0x66, 0x66, 0x6E, 0x76, 0x66, 0x66, 0x3C //0
+};
+unsigned int messN1[] = {
+  0x18, 0x38, 0x58, 0x18, 0x18, 0x18, 0x18, 0x7E //1
+};
+unsigned int messN2[] = {
+  0x3C, 0x66, 0x66, 0x0C, 0x18, 0x30, 0x7E, 0x7E //2
+};
+unsigned int messN3[] = {
+  0x7E, 0x0C, 0x18, 0x3C, 0x06, 0x06, 0x46, 0x3C //3
+};
+unsigned int messN4[] = {
+  0x0C, 0x18, 0x30, 0x6C, 0x6C, 0x7E, 0x0C, 0x0C //4
+};
+unsigned int messN5[] = {
+  0x7E, 0x60, 0x60, 0x7C, 0x06, 0x06, 0x46, 0x3C //5
+};
+unsigned int messN6[] = {
+  0x04, 0x08, 0x10, 0x38, 0x6C, 0x66, 0x66, 0x3C //6
+};
+unsigned int messN7[] = {
+  0x7E, 0x46, 0x0C, 0x18, 0x18, 0x18, 0x18, 0x18 //7
+};
+unsigned int messN8[] = {
+  0x3C, 0x66, 0x66, 0x3C, 0x66, 0x66, 0x66, 0x3C //8
+};
+unsigned int messN9[] = {
+  0x3C, 0x66, 0x66, 0x36, 0x1C, 0x08, 0x10, 0x20 //9
+};
+//////////////////////////////////////////////////////////MAN HINH 1//////////////
+unsigned int mess0[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess1[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess2[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess3[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess4[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess5[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 2//////////////
+unsigned int mess6[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess7[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess8[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess9[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess10[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess11[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 3//////////////
+unsigned int mess12[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess13[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess14[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess15[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess16[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess17[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 4//////////////
+unsigned int mess18[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess19[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess20[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess21[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess22[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess23[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 5//////////////
+unsigned int mess24[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess25[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess26[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess27[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess28[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess29[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 6//////////////
+unsigned int mess30[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess31[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess32[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess33[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess34[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess35[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 7//////////////
+unsigned int mess36[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess37[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess38[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess39[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess40[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess41[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 8//////////////
+unsigned int mess42[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess43[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess44[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess45[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess46[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int mess47[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 1 SOURCE//////////////
+unsigned int messS0[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS1[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS2[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS3[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS4[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS5[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 2 SOURCE//////////////
+unsigned int messS6[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS7[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS8[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS9[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS10[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS11[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 3 SOURCE//////////////
+unsigned int messS12[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS13[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS14[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS15[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS16[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS17[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 4 SOURCE//////////////
+unsigned int messS18[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS19[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS20[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS21[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS22[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS23[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 5 SOURCE//////////////
+unsigned int messS24[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS25[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS26[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS27[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS28[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS29[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 6 SOURCE//////////////
+unsigned int messS30[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS31[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS32[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS33[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS34[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS35[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 7 SOURCE//////////////
+unsigned int messS36[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS37[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS38[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS39[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS40[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS41[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////MAN HINH 8 SOURCE//////////////
+unsigned int messS42[] = {  //noi dung tren HC0
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS43[] = {  //noi dung tren HC1
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS44[] = {  //noi dung tren HC2
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS45[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS46[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+unsigned int messS47[] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+///////////////////////////////////////////////////////////////////////////////
+void setup() {
+  pinMode(DATA, OUTPUT);
+  pinMode(CLOCK, OUTPUT);
+  pinMode(LATCH, OUTPUT);
+
+}
+void displayImage(unsigned int image[], int duration)
+{
+  for (int hold = 0; hold < duration; hold++)
+  {
+    for (int a = 0; a < 8; a++)
+    {
+      digitalWrite(LATCH, LOW);
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image[a]); //column
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+      digitalWrite(LATCH, HIGH);
+      delay(1);
+    }
+  }
+}
+void displayImage1(unsigned int image[])
+{ //dung lam dong ho hien thi 2 kim long nhau thi ok, ham dung de long hinh anh
+  for (int a = 0; a < 8; a++)
+  {
+    digitalWrite(LATCH, LOW);
+    shiftOut(DATA, CLOCK, MSBFIRST, ~image[a]); //column
+    shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+    digitalWrite(LATCH, HIGH);
+    delay(1);
+  }
+}
+void flipHorizontalImage(unsigned int * ptr)
+{
+  unsigned int temp;
+  for (int i = 0; i < 7; i++)
+  {
+    temp = *(ptr + 7 - i);
+    *(ptr + 7 - i) = *(ptr + i);
+    *(ptr + i) = temp;
+  }
+}
+void flipVerticalImage(unsigned int * ptr)
+{
+  unsigned int temp = 0x00;
+  for (int j = 0; j < 8; j++)
+  {
+    for (int i = 0; i < 8; i++)
+    {
+      bitWrite(temp, 7 - i, bitRead(*(ptr + j), i)); //(byte dich, vi tri, gia tri)
+    }
+    *(ptr + j) = temp;
+  }
+}
+void rotateLeftImage(unsigned int * ptr) {
+  unsigned int A[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+  };
+  for (int i = 0; i < 8; i++)
+  {
+    A[i] = *(ptr + i);
+  }
+  for (int j = 0; j < 8; j++)
+  {
+    for (int i = 0; i < 8; i++)
+    {
+      bitWrite(*(ptr + 7 - i), j, bitRead(A[j], i));
+    }
+  }
+}
+void rotateRightImage(unsigned int * ptr) {
+  unsigned int A[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+  };
+  for (int i = 0; i < 8; i++)
+  {
+    A[i] = *(ptr + i);
+  }
+  for (int j = 0; j < 8; j++)
+  {
+    for (int i = 0; i < 8; i++)
+    {
+      bitWrite(*(ptr + 7 - i), 7 - j, bitRead(A[j], i));
+    }
+  }
+}
+void displayMultiImage(int n, unsigned int image0[], unsigned int image1[], int duration)
+{
+  for (int hold = 0; hold < duration; hold++)
+  {
+    for (int a = 0; a < 8; a++)
+    {
+      digitalWrite(LATCH, LOW);
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image1[a]); //column
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image0[a]);
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      digitalWrite(LATCH, HIGH);
+      delay(1); //toc do quet led
+    }
+  }
+}
+void displayMultiImage1(int n,
+                        unsigned int image0[],
+                        unsigned int image1[],
+                        unsigned int image2[],
+                        unsigned int image3[],
+                        unsigned int image4[],
+                        unsigned int image5[], int duration)
+{
+  for (int hold = 0; hold < duration; hold++)
+  {
+    for (int a = 0; a < 8; a++)
+    {
+      digitalWrite(LATCH, LOW);
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image5[a]);
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image4[a]);
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image3[a]);
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image2[a]);
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image1[a]); //column
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      shiftOut(DATA, CLOCK, MSBFIRST, ~image0[a]);
+      shiftOut(DATA, CLOCK, MSBFIRST, row[a]); //row
+
+      digitalWrite(LATCH, HIGH);
+      delay(1); //toc do quet led
+    }
+  }
+}
+void scrollLeft1Image(unsigned int * ptr)
+{
+  for (int i = 7; i > 0; i--)
+  {
+    *(ptr + i) = *(ptr + i - 1);
+  }
+  *(ptr) = Clean;
+}
+void scrollRight1Image(unsigned int * ptr)
+{
+  *(ptr + 7) = Clean;
+  for (int i = 0; i < 7; i++)
+  {
+    *(ptr + i) = *(ptr + i + 1);
+  }
+}
+void scrollLeft2Image(unsigned int * ptr0, unsigned int * ptr1, int t)
+{ //chay tu trai sang phai hay tu 7->0
+  for (int i = 7; i > 0; i--)
+  {
+    *(ptr0 + i) = *(ptr0 + i - 1);
+  }
+  //  *(ptr0) = *(ptr1 + 7); //dieu kien dung: cai tiep theo cung phai scroll cung luc voi no
+  *(ptr0) = *(ptr1 + 7 - t);
+}
+void scrollRight2Image(unsigned int * ptr0, unsigned int * ptr1, int t)
+{ //chay tu trai sang phai hay tu 7->0
+  for (int i = 0; i < 8; i++)
+  {
+    *(ptr0 + i) = *(ptr0 + i + 1);
+  }
+  //  *(ptr0) = *(ptr1 + 7); //dieu kien dung: cai tiep theo cung phai scroll cung luc voi no
+  *(ptr0 + 7) = *(ptr1 +  t);
+}
+void scrollUp1Image(unsigned int * ptr)
+{
+  for (int j = 0; j < 8; j++) //chieu ngang
+  {
+    for (int i = 0; i < 8; i++) //chieu doc
+    {
+      bitWrite(*(ptr + j), i, bitRead(*(ptr + j), i + 1));
+    }
+    *(ptr + 7) = Clean; //sai cmmr nhe
+  }
+}
+void scrollDown1Image(unsigned int * ptr)
+{
+  for (int j = 0; j < 8; j++)
+  {
+    for (int i = 7; i > 0; i--)
+    {
+      bitWrite(*(ptr + j), i, bitRead(*(ptr + j), i - 1));
+    }
+    *(ptr) = Clean;
+  }
+}
+void scrollUp2Image(unsigned int * ptr0, unsigned int * ptr1, int t)
+{
+  for (int j = 0; j < 8; j++) //chieu ngang
+  {
+    for (int i = 0; i < 8; i++) //chieu doc
+    {
+      bitWrite(*(ptr0 + j), i, bitRead(*(ptr0 + j), i + 1));
+    }
+    bitWrite(*(ptr0 + j), 7, bitRead(*(ptr1 + j), t));
+  }
+}
+void scrollDown2Image(unsigned int * ptr0, unsigned int * ptr1, int t)
+{
+  for (int j = 7; j >= 0; j--) //chieu ngang
+  {
+    for (int i = 7; i > 0; i--) //chieu doc
+    {
+      bitWrite(*(ptr0 + j), i, bitRead(*(ptr0 + j), i - 1));
+    }
+    bitWrite(*(ptr0 + j), 0, bitRead(*(ptr1 + j), 7 - t));
+  }
+}
+void moveImage(unsigned int * ptr0, unsigned int * ptr1)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    *(ptr1 + i) = *(ptr0 + i);
+  }
+}
+void scrollLeft3x2(unsigned int * ptr0, unsigned int * ptr1, unsigned int * ptr2,
+                   unsigned int * ptr3, unsigned int * ptr4, unsigned int * ptr5, unsigned int * ptr6, unsigned int * ptr9, int ts)
+{
+  for (int i = 0; i < 8; i++)
+  {
+    scrollLeft2Image(mess0, ptr1, i);
+    scrollLeft2Image(mess3, ptr4, i);
+    scrollLeft2Image(mess1, ptr2, i);
+    scrollLeft2Image(mess4, ptr5, i);
+    scrollLeft2Image(mess2, ptr6, i);
+    scrollLeft2Image(mess5, ptr9, i);
+    displayMultiImage1(6, mess0, mess1, mess2, mess3, mess4, mess5, ts);
+  }
+}
+void scrollLeft2Slide3x2(unsigned int * ptr0, unsigned int * ptr1, unsigned int * ptr2,
+                         unsigned int * ptr3, unsigned int * ptr4, unsigned int * ptr5,
+                         unsigned int * ptr6, unsigned int * ptr7, unsigned int * ptr8,
+                         unsigned int * ptr9, unsigned int * ptr10, unsigned int * ptr11, int ts)
+{
+  scrollLeft3x2(ptr0, ptr1, ptr2, ptr3, ptr4, ptr5, ptr6, ptr9, ts);
+  scrollLeft3x2(ptr1, ptr2, ptr6, ptr4, ptr5, ptr9, ptr7, ptr10, ts);
+  scrollLeft3x2(ptr2, ptr6, ptr7, ptr5, ptr9, ptr10, ptr8, ptr11, ts);
+}
+void loop() {
+  //////////////////////////////////////////////////LAM THOI///////////////////
+  moveImage(messClean, mess0);
+  moveImage(messS, mess1);
+  moveImage(messA, mess2);
+  moveImage(messClean, mess3);
+  moveImage(messS, mess4);
+  moveImage(messA, mess5);
+
+  moveImage(messL, mess6);
+  moveImage(messL, mess9);
+  moveImage(messO, mess7);
+  moveImage(messO, mess10);
+  moveImage(messN, mess8);
+  moveImage(messN, mess11);
+
+  moveImage(messMinus, mess12);
+  moveImage(messDD, mess13);
+  moveImage(messI, mess14);
+  moveImage(messMinus, mess15);
+  moveImage(messDD, mess16);
+  moveImage(messI, mess17);
+
+  moveImage(messE, mess18);
+  moveImage(messN, mess19);
+  moveImage(messClean, mess20);
+  moveImage(messE, mess21);
+  moveImage(messN, mess22);
+  moveImage(messClean, mess23);
+
+  moveImage(messT, mess24);
+  moveImage(messUW, mess25);
+  moveImage(messClean, mess26);
+  moveImage(messT, mess27);
+  moveImage(messUW, mess28);
+  moveImage(messClean, mess29);
+
+  moveImage(messH, mess30);
+  moveImage(messO, mess31);
+  moveImage(messN, mess32);
+  moveImage(messH, mess33);
+  moveImage(messO, mess34);
+  moveImage(messN, mess35);
+
+  moveImage(messG, mess36);
+  moveImage(messMinus, mess37);
+  moveImage(messT, mess38);
+  moveImage(messG, mess39);
+  moveImage(messMinus, mess40);
+  moveImage(messT, mess41);
+
+  moveImage(messR, mess42);
+  moveImage(messI, mess43);
+  moveImage(messClean, mess44);
+  moveImage(messR, mess45);
+  moveImage(messI, mess46);
+  moveImage(messClean, mess47);
+
+  flipVerticalImage(mess0);
+  rotateLeftImage(mess0);
+  flipVerticalImage(mess1);
+  rotateLeftImage(mess1);
+  flipVerticalImage(mess2);
+  rotateLeftImage(mess2);
+  flipVerticalImage(mess3);
+  rotateLeftImage(mess3);
+  flipVerticalImage(mess4);
+  rotateLeftImage(mess4);
+  flipVerticalImage(mess5);
+  rotateLeftImage(mess5);
+  flipVerticalImage(mess6);
+  rotateLeftImage(mess6);
+  flipVerticalImage(mess7);
+  rotateLeftImage(mess7);
+  flipVerticalImage(mess8);
+  rotateLeftImage(mess8);
+  flipVerticalImage(mess9);
+  rotateLeftImage(mess9);
+  flipVerticalImage(mess10);
+  rotateLeftImage(mess10);
+  flipVerticalImage(mess11);
+  rotateLeftImage(mess11);
+  flipVerticalImage(mess12);
+  rotateLeftImage(mess12);
+  flipVerticalImage(mess13);
+  rotateLeftImage(mess13);
+  flipVerticalImage(mess14);
+  rotateLeftImage(mess14);
+  flipVerticalImage(mess15);
+  rotateLeftImage(mess15);
+  flipVerticalImage(mess16);
+  rotateLeftImage(mess16);
+  flipVerticalImage(mess17);
+  rotateLeftImage(mess17);
+  flipVerticalImage(mess18);
+  rotateLeftImage(mess18);
+  flipVerticalImage(mess19);
+  rotateLeftImage(mess19);
+  flipVerticalImage(mess20);
+  rotateLeftImage(mess20);
+  flipVerticalImage(mess21);
+  rotateLeftImage(mess21);
+  flipVerticalImage(mess22);
+  rotateLeftImage(mess22);
+  flipVerticalImage(mess23);
+  rotateLeftImage(mess23);
+  flipVerticalImage(mess24);
+  rotateLeftImage(mess24);
+  flipVerticalImage(mess25);
+  rotateLeftImage(mess25);
+  flipVerticalImage(mess26);
+  rotateLeftImage(mess26);
+  flipVerticalImage(mess27);
+  rotateLeftImage(mess27);
+  flipVerticalImage(mess28);
+  rotateLeftImage(mess28);
+  flipVerticalImage(mess29);
+  rotateLeftImage(mess29);
+  flipVerticalImage(mess30);
+  rotateLeftImage(mess30);
+  flipVerticalImage(mess31);
+  rotateLeftImage(mess31);
+  flipVerticalImage(mess32);
+  rotateLeftImage(mess32);
+  flipVerticalImage(mess33);
+  rotateLeftImage(mess33);
+  flipVerticalImage(mess34);
+  rotateLeftImage(mess34);
+  flipVerticalImage(mess35);
+  rotateLeftImage(mess35);
+
+  flipVerticalImage(mess36);
+  rotateLeftImage(mess36);
+  flipVerticalImage(mess37);
+  rotateLeftImage(mess37);
+  flipVerticalImage(mess38);
+  rotateLeftImage(mess38);
+  flipVerticalImage(mess39);
+  rotateLeftImage(mess39);
+  flipVerticalImage(mess40);
+  rotateLeftImage(mess40);
+  flipVerticalImage(mess41);
+  rotateLeftImage(mess41);
+  flipVerticalImage(mess42);
+  rotateLeftImage(mess42);
+  flipVerticalImage(mess43);
+  rotateLeftImage(mess43);
+  flipVerticalImage(mess44);
+  rotateLeftImage(mess44);
+  flipVerticalImage(mess45);
+  rotateLeftImage(mess45);
+  flipVerticalImage(mess46);
+  rotateLeftImage(mess46);
+  flipVerticalImage(mess47);
+  rotateLeftImage(mess47);
+  //  //EDIT
+  //
+  //  //  displayMultiImage1(6, mess0, mess1, mess2, mess3, mess4, mess5, 3000);  //TEST
+  //  //  displayMultiImage1(6, mess6, mess7, mess8, mess9, mess10, mess11, 3000);  //TEST
+  //  //  displayMultiImage1(6, mess12, mess13, mess14, mess15, mess16, mess17, 3000);  //TEST
+  //  //  displayMultiImage1(6, messS0, messS1, messS2, messS3, messS4, messS5, 3000);  //TEST
+  //  //  displayMultiImage1(6, messS6, messS7, messS8, messS9, messS10 messS11, 3000);  //TEST
+  //  //  displayMultiImage1(6, messS12, messS13, messS14, messS15, messS16, messS17, 3000);  //TEST
+  for (int i = 0; i < 4; i++)
+  {
+    scrollDown2Image(mess0, messClean, i);
+    scrollDown2Image(mess1, messClean, i);
+    scrollDown2Image(mess2, messClean, i);
+    scrollUp2Image(mess5, messClean, i);
+    scrollUp2Image(mess3, messClean, i);
+    scrollUp2Image(mess4, messClean, i);
+    scrollDown2Image(mess6, messClean, i);
+    scrollUp2Image(mess9, messClean, i);
+    scrollDown2Image(mess7, messClean, i);
+    scrollUp2Image(mess10, messClean, i);
+    scrollDown2Image(mess8, messClean, i);
+    scrollUp2Image(mess11, messClean, i);
+    scrollDown2Image(mess12, messClean, i);
+    scrollUp2Image(mess15, messClean, i);
+    scrollDown2Image(mess13, messClean, i);
+    scrollUp2Image(mess16, messClean, i);
+    scrollDown2Image(mess14, messClean, i);
+    scrollUp2Image(mess17, messClean, i);
+
+    scrollDown2Image(mess18, messOO, i);
+    scrollUp2Image(mess21, messAJ, i);
+    scrollDown2Image(mess19, messClean, i);
+    scrollUp2Image(mess22, messClean, i);
+    scrollDown2Image(mess20, messClean, i);
+    scrollUp2Image(mess23, messClean, i);
+
+    scrollDown2Image(mess24, messClean, i);
+    scrollUp2Image(mess27, messClean, i);
+    scrollDown2Image(mess25, messAR, i);
+    scrollUp2Image(mess28, messClean, i);
+    scrollDown2Image(mess26, messClean, i);
+    scrollUp2Image(mess29, messClean, i);
+
+    scrollDown2Image(mess30, messClean, i);
+    scrollUp2Image(mess33, messClean, i);
+    scrollDown2Image(mess31, messOOF, i);
+    scrollUp2Image(mess34, messClean, i);
+    scrollDown2Image(mess32, messClean, i);
+    scrollUp2Image(mess35, messClean, i);
+
+    scrollDown2Image(mess36, messClean, i);
+    scrollUp2Image(mess39, messClean, i);
+    scrollDown2Image(mess37, messClean, i);
+    scrollUp2Image(mess40, messClean, i);
+    scrollDown2Image(mess38, messClean, i);
+    scrollUp2Image(mess41, messClean, i);
+
+    scrollDown2Image(mess42, messClean, i);
+    scrollUp2Image(mess45, messClean, i);
+    scrollDown2Image(mess43, messAS, i);
+    scrollUp2Image(mess46, messClean, i);
+    scrollDown2Image(mess44, messClean, i);
+    scrollUp2Image(mess47, messClean, i);
+  }
+  //  displayMultiImage1(6, mess0, mess1, mess2, mess3, mess4, mess5, 30);
+
+  //SOURCE
+  moveImage(mess0, messS0);
+  moveImage(mess1, messS1);
+  moveImage(mess2, messS2);
+  moveImage(mess3, messS3);
+  moveImage(mess4, messS4);
+  moveImage(mess5, messS5);
+  moveImage(mess6, messS6);
+  moveImage(mess7, messS7);
+  moveImage(mess8, messS8);
+  moveImage(mess9, messS9);
+  moveImage(mess10, messS10);
+  moveImage(mess11, messS11);
+  moveImage(mess12, messS12);
+  moveImage(mess13, messS13);
+  moveImage(mess14, messS14);
+  moveImage(mess15, messS15);
+  moveImage(mess16, messS16);
+  moveImage(mess17, messS17);
+  moveImage(mess18, messS18);
+  moveImage(mess19, messS19);
+  moveImage(mess20, messS20);
+  moveImage(mess21, messS21);
+  moveImage(mess22, messS22);
+  moveImage(mess23, messS23);
+  moveImage(mess24, messS24);
+  moveImage(mess25, messS25);
+  moveImage(mess26, messS26);
+  moveImage(mess27, messS27);
+  moveImage(mess28, messS28);
+  moveImage(mess29, messS29);
+  moveImage(mess30, messS30);
+  moveImage(mess31, messS31);
+  moveImage(mess32, messS32);
+  moveImage(mess33, messS33);
+  moveImage(mess34, messS34);
+  moveImage(mess35, messS35);
+  moveImage(mess36, messS36);
+  moveImage(mess37, messS37);
+  moveImage(mess38, messS38);
+  moveImage(mess39, messS39);
+  moveImage(mess40, messS40);
+  moveImage(mess41, messS41);
+  moveImage(mess42, messS42);
+  moveImage(mess43, messS43);
+  moveImage(mess44, messS44);
+  moveImage(mess45, messS45);
+  moveImage(mess46, messS46);
+  moveImage(mess47, messS47);
+
+  //0-1-2 //6-7-8   //12-13-14  //18-19-20 //24-25-26 //30-31-32  //36-37-38
+  //3-4-5 //9-10-11 //15-16-17  //21-22-23 //27-28-29 //33-34-35  //39-40-41
+
+  scrollLeft2Slide3x2(messS0, messS1, messS2, messS3, messS4, messS5, messS6, messS7, messS8, messS9, messS10, messS11, ts);
+  scrollLeft2Slide3x2(messS6, messS7, messS8, messS9, messS10, messS11, messS12, messS13, messS14, messS15, messS16, messS17, ts);
+  scrollLeft2Slide3x2(messS12, messS13, messS14, messS15, messS16, messS17, messS18, messS19, messS20, messS21, messS22, messS23, ts);
+  scrollLeft2Slide3x2(messS18, messS19, messS20, messS21, messS22, messS23, messS24, messS25, messS26, messS27, messS28, messS29, ts);
+  scrollLeft2Slide3x2(messS24, messS25, messS26, messS27, messS28, messS29, messS30, messS31, messS32, messS33, messS34, messS35, ts);
+  scrollLeft2Slide3x2(messS30, messS31, messS32, messS33, messS34, messS35, messS36, messS37, messS38, messS39, messS40, messS41, ts);
+  scrollLeft2Slide3x2(messS36, messS37, messS38, messS39, messS40, messS41, messS42, messS43, messS44, messS45, messS46, messS47, ts);
+
+
+}
